@@ -27,11 +27,15 @@ func main() {
 		SensorRepo:      sensorRepo,
 		AlertRepo:       alertRepo,
 	}
+	alertService := service.AlertService{
+		AlertRepo: alertRepo, // Sesuaikan dengan field yang ada di AlertService
+	}
 
 	// handler
 	sensorHandler := handler.SensorHandler{
 		Service: sensorService,
 	}
+
 	dashboardService := service.DashboardService{
 		SensorRepo: sensorRepo,
 		DeviceRepo: deviceRepo,
@@ -40,11 +44,16 @@ func main() {
 	dashboardHandler := handler.DashboardHandler{
 		Service: dashboardService,
 	}
+	alertHandler := handler.AlertHandler{
+		Service: alertService,
+	}
 
 	r := gin.Default()
 
 	r.POST("/api/sensor", sensorHandler.ReceiveSensor)
 	r.GET("/api/dashboard/latest/:device_code", dashboardHandler.GetLatest)
+	r.GET("/api/dashboard/history/:device_code", dashboardHandler.GetHistory)
+	r.GET("/api/alerts/active", alertHandler.GetActive)
 
 	r.Run(":8080")
 }

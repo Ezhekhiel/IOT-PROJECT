@@ -27,3 +27,29 @@ func (s *DashboardService) GetLatest(deviceCode string) (interface{}, error) {
 		"time":        data.CreatedAt,
 	}, nil
 }
+func (s *DashboardService) GetHistory(deviceCode string, rangeType string) (interface{}, error) {
+
+	device, err := s.DeviceRepo.FindByCode(deviceCode)
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := s.SensorRepo.GetHistory(device.ID, rangeType)
+	if err != nil {
+		return nil, err
+	}
+
+	// format untuk chart
+	var result []map[string]interface{}
+
+	for _, d := range data {
+		result = append(result, map[string]interface{}{
+			"time":        d.CreatedAt,
+			"pressure":    d.Pressure,
+			"temperature": d.Temperature,
+			"timer":       d.Timer,
+		})
+	}
+
+	return result, nil
+}
