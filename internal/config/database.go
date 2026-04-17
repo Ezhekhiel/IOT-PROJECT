@@ -6,7 +6,7 @@ import (
 )
 
 func ConnectDB() *gorm.DB {
-	dsn := "sqlserver://sa:@Lean_user1@10.2.11.4:1433?database=IOT_PROJECT"
+	dsn := "sqlserver://sa:@Lean_user1@10.2.11.4:1433?database=IOT_PROJECT&encrypt=disable"
 
 	db, err := gorm.Open(sqlserver.Open(dsn), &gorm.Config{})
 	if err != nil {

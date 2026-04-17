@@ -32,10 +32,19 @@ func main() {
 	sensorHandler := handler.SensorHandler{
 		Service: sensorService,
 	}
+	dashboardService := service.DashboardService{
+		SensorRepo: sensorRepo,
+		DeviceRepo: deviceRepo,
+	}
+
+	dashboardHandler := handler.DashboardHandler{
+		Service: dashboardService,
+	}
 
 	r := gin.Default()
 
 	r.POST("/api/sensor", sensorHandler.ReceiveSensor)
+	r.GET("/api/dashboard/latest/:device_code", dashboardHandler.GetLatest)
 
 	r.Run(":8080")
 }
