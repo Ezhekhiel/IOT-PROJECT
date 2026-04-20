@@ -5,6 +5,7 @@ import (
 	"github.com/Ezhekhiel/IOT-PROJECT/internal/handler"
 	"github.com/Ezhekhiel/IOT-PROJECT/internal/repository"
 	"github.com/Ezhekhiel/IOT-PROJECT/internal/service"
+	"github.com/Ezhekhiel/IOT-PROJECT/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -36,7 +37,8 @@ func main() {
 		AlertRepo: alertRepo, // Sesuaikan dengan field yang ada di AlertService
 	}
 	dataService := service.DataService{
-		DataRepo: standardRepo,
+		StandarRepo:     standardRepo,
+		CellRunningRepo: cellRepo,
 	}
 
 	// handler
@@ -55,19 +57,29 @@ func main() {
 	}
 
 	r := gin.Default()
+	api := r.Group("/api", middleware.APIKeyMiddleware())
 	//data input dari IoT
-	r.POST("/api/sensor", sensorHandler.ReceiveSensor)
+	api.POST("/sensor", sensorHandler.ReceiveSensor)
 	//dashboard data
-	r.GET("/api/dashboard/latest/:device_code", dashboardHandler.GetLatest)
-	r.GET("/api/dashboard/latest/", dashboardHandler.GetLatestAll)
+	api.GET("/dashboard/latest/:device_code", dashboardHandler.GetLatest)
+	api.GET("/dashboard/latest/", dashboardHandler.GetLatestAll)
 	//report data
-	r.GET("/api/dashboard/history/:device_code", dashboardHandler.GetHistory)
-	r.GET("/api/dashboard/history/", dashboardHandler.GetHistoryAll)
+	api.GET("/dashboard/history/:device_code", dashboardHandler.GetHistory)
+	api.GET("/dashboard/history/", dashboardHandler.GetHistoryAll)
 
 	//get data cell running models
-	r.GET("/api/data/cell/running_model", dataHandler.GetModelProcessStandards)
+	api.GET("/data/", dataHandler.GetModelProcessStandards)
+	api.POST("/data/", dataHandler.GetModelProcessStandards)
+	api.GET("/data/cell", dataHandler.GetAllCell)
+	api.POST("/data/cell", dataHandler.ReceiveCell)
+	api.GET("/data/location", dataHandler.GetAllLocation)
+	api.POST("/data/location", dataHandler.ReceiveLocation)
+	api.GET("/data/model", dataHandler.GetAllModel)
+	api.POST("/data/model", dataHandler.ReceiveModel)
+	api.GET("/data/process", dataHandler.GetAllProcess)
+	api.POST("/data/process", dataHandler.ReceiveProcess)
 
-	r.GET("/api/alerts/active", alertHandler.GetActive)
+	api.GET("/alerts/active", alertHandler.GetActive)
 
 	r.Run(":8080")
 }
