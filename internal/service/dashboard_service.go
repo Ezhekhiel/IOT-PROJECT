@@ -1,10 +1,20 @@
 package service
 
-import "github.com/Ezhekhiel/IOT-PROJECT/internal/repository"
+import (
+	"time"
+
+	"github.com/Ezhekhiel/IOT-PROJECT/internal/repository"
+)
 
 type DashboardService struct {
 	SensorRepo repository.SensorRepository
 	DeviceRepo repository.DeviceRepository
+}
+type HistoryAggregated struct {
+	TimeGroup   time.Time `gorm:"column:time_group"`
+	Pressure    *float64  `gorm:"column:pressure"`
+	Temperature *float64  `gorm:"column:temperature"`
+	Timer       *float64  `gorm:"column:timer"`
 }
 
 func (s *DashboardService) GetLatest(deviceCode string) (interface{}, error) {
@@ -26,6 +36,27 @@ func (s *DashboardService) GetLatest(deviceCode string) (interface{}, error) {
 		"timer":       data.Timer,
 		"time":        data.CreatedAt,
 	}, nil
+}
+func (s *DashboardService) GetLatestFromAll() (interface{}, error) {
+
+	data, err := s.SensorRepo.GetLatestAllDevices()
+	if err != nil {
+		return nil, err
+	}
+
+	var result []map[string]interface{}
+
+	for _, d := range data {
+		result = append(result, map[string]interface{}{
+			"device_id":   d.DeviceID,
+			"pressure":    d.Pressure,
+			"temperature": d.Temperature,
+			"timer":       d.Timer,
+			"time":        d.CreatedAt,
+		})
+	}
+
+	return result, nil
 }
 func (s *DashboardService) GetHistory(deviceCode string, rangeType string) (interface{}, error) {
 
@@ -51,5 +82,25 @@ func (s *DashboardService) GetHistory(deviceCode string, rangeType string) (inte
 		})
 	}
 
+	return result, nil
+}
+func (s *DashboardService) GetHistoryFromAll(rangeType string) (interface{}, error) {
+
+	data, err := s.SensorRepo.GetHistoryAggregated(rangeType)
+	if err != nil {
+		return nil, err
+	}
+
+	// format untuk chart
+	var result []map[string]interface{}
+	for _, d := range data {
+		result = append(result, map[string]interface{}{
+			"time":        d.TimeGroup,
+			"pressure":    d.Pressure,
+			"temperature": d.Temperature,
+			"timer":       d.Timer,
+			"device_code": d.DeviceCode,
+		})
+	}
 	return result, nil
 }

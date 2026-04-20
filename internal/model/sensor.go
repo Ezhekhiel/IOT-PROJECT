@@ -10,3 +10,8 @@ type SensorData struct {
 	Timer       *int      `gorm:"column:timer"`
 	CreatedAt   time.Time `gorm:"column:created_at"`
 }
+
+//aktivkan ini kalo mau setting manual table
+// func (Device) TableName() string {
+// 	return "sensor_data"
+// }

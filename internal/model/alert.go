@@ -10,3 +10,8 @@ type Alert struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
+
+//aktivkan ini kalo mau setting manual table
+// func (Device) TableName() string {
+// 	return "alerts"
+// }

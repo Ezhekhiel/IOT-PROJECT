@@ -8,3 +8,8 @@ type CellRunningModel struct {
 	ModelID   int
 	StartTime time.Time
 }
+
+//aktivkan ini kalo mau setting manual table
+// func (Device) TableName() string {
+// 	return "cell_running_models"
+// }

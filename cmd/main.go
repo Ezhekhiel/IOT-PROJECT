@@ -27,18 +27,21 @@ func main() {
 		SensorRepo:      sensorRepo,
 		AlertRepo:       alertRepo,
 	}
+
+	dashboardService := service.DashboardService{
+		SensorRepo: sensorRepo,
+		DeviceRepo: deviceRepo,
+	}
 	alertService := service.AlertService{
 		AlertRepo: alertRepo, // Sesuaikan dengan field yang ada di AlertService
+	}
+	dataService := service.DataService{
+		DataRepo: standardRepo,
 	}
 
 	// handler
 	sensorHandler := handler.SensorHandler{
 		Service: sensorService,
-	}
-
-	dashboardService := service.DashboardService{
-		SensorRepo: sensorRepo,
-		DeviceRepo: deviceRepo,
 	}
 
 	dashboardHandler := handler.DashboardHandler{
@@ -47,12 +50,23 @@ func main() {
 	alertHandler := handler.AlertHandler{
 		Service: alertService,
 	}
+	dataHandler := handler.DataHandler{
+		Service: dataService,
+	}
 
 	r := gin.Default()
-
+	//data input dari IoT
 	r.POST("/api/sensor", sensorHandler.ReceiveSensor)
+	//dashboard data
 	r.GET("/api/dashboard/latest/:device_code", dashboardHandler.GetLatest)
+	r.GET("/api/dashboard/latest/", dashboardHandler.GetLatestAll)
+	//report data
 	r.GET("/api/dashboard/history/:device_code", dashboardHandler.GetHistory)
+	r.GET("/api/dashboard/history/", dashboardHandler.GetHistoryAll)
+
+	//get data cell running models
+	r.GET("/api/data/cell/running_model", dataHandler.GetModelProcessStandards)
+
 	r.GET("/api/alerts/active", alertHandler.GetActive)
 
 	r.Run(":8080")
